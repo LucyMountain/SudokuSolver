@@ -6,9 +6,9 @@ class Cell:
         self.value = None
         self.possible_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-    def set_value(self, value):
-        self.value = value
-        self.possible_values = [value]
+    def set_value(self):
+        if len(self.possible_values) == 1:
+            self.value = self.possible_values[0]
 
 
 class Sudoku_Grid:
@@ -39,6 +39,8 @@ class Sudoku_Grid:
         self.update_columns_x()
         self.update_rows_y()
         self.update_squares()
+        for i in range(81):
+            self.cells[i].set_value()
 
     def update_columns_x(self):
         for i in range(9):
@@ -48,12 +50,9 @@ class Sudoku_Grid:
                     column.append(self.cells[i + (9 * j)].value)
             for k in range(9):
                 for digit in column:
-                    value = 0
-                    for index in range(len(self.cells[i + (9 * k)].possible_values)):
-                        if self.cells[i + (9 * k)].possible_values[index - value] == digit:
-                            self.cells[i + (9 * k)].possible_values.remove(digit)
-                            value += 1
-
+                    for value in self.cells[i + (9 * k)].possible_values:
+                        if value == digit:
+                            self.cells[i + (9 * k)].possible_values.remove(value)
 
     def update_rows_y(self):
         for i in range(9):
@@ -63,25 +62,33 @@ class Sudoku_Grid:
                     row.append(self.cells[j + (9 * i)].value)
             for k in range(9):
                 for digit in row:
-                    value = 0
-                    for index in range(len(self.cells[k + (9 * i)].possible_values)):
-                        if self.cells[k + (9 * i)].possible_values[index] == digit:
-                            self.cells[k + (9 * i)].possible_values.remove(index - value)
-                            value += 1
+                    for value in self.cells[k + (9 * i)].possible_values:
+                        if value == digit:
+                            self.cells[k + (9 * i)].possible_values.remove(value)
+
 
     def update_squares(self):
         for i in range(9):
             square = []
             for index in self.squares[i]:
                 if self.cells[index].value is not None:
-                    square.append(index.value)
+                    square.append(self.cells[index].value)
             for index in self.squares[i]:
                 for digit in square:
-                    value = 0
-                    for i in range(len(self.cells[index].possible_values)):
-                        if self.cells[index] == digit:
-                            self.cells[index].possible_values.remove(i - value)
-                            value += 1
+                    for value in self.cells[index].possible_values:
+                        if value == digit:
+                            self.cells[index].possible_values.remove(value)
+                            print("value {} is not possible".format(value))
+
+    def print_grid(self):
+        for i in range(9):
+            row = ""
+            for j in range(9):
+                if self.cells[j + (9 * i)].value is not None:
+                    row += str(self.cells[j + (9 * i)].value)
+                else:
+                    row += "?"
+            print(row)
 
     def solve(self):
         self.create_grid()
@@ -89,10 +96,12 @@ class Sudoku_Grid:
             self.update_cell_values()
             finished = False
             for i in range(81):
-                if self.cells[i]. value is None:
+                if self.cells[i].value is None:
                     break
                 if i == 80:
                     finished = True
             if finished == True:
                 break
+            self.print_grid()
+            print(" ")
         return self.cells
